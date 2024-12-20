@@ -191,6 +191,33 @@ class HybridTestObjectKotlin: HybridTestObjectSwiftKotlinSpec() {
         third()
     }
 
+    override fun callSumUpNTimes(callback: () -> Promise<Double>, n: Double): Promise<Double> {
+        var result = 0.0
+        return Promise.async {
+            for (i in 1..n.toInt()) {
+                val current = callback().await()
+                result += current
+            }
+            return@async result
+        }
+    }
+
+  override fun callbackAsyncPromise(callback: () -> Promise<Promise<Double>>): Promise<Double> {
+    return Promise.async {
+      val promise = callback().await()
+      val result = promise.await()
+      return@async result
+    }
+  }
+
+  override fun callbackAsyncPromiseBuffer(callback: () -> Promise<Promise<ArrayBuffer>>): Promise<ArrayBuffer> {
+    return Promise.async {
+      val promise = callback().await()
+      val result = promise.await()
+      return@async result
+    }
+  }
+
     override fun getCar(): Car {
         return Car(2018.0, "Lamborghini", "Huracán", 640.0, Powertrain.GAS, null, true)
     }

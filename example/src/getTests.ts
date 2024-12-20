@@ -851,12 +851,14 @@ export function getTests(
         .didNotThrow()
         .equals('hello')
     ),
-    createTest('getValueFromJSCallbackAndWait(...)', async () =>
-      (await it(() => testObject.getValueFromJSCallbackAndWait(() => 73)))
-        .didNotThrow()
-        .equals(73)
+    createTest(
+      'Single callback can be called and awaited: getValueFromJSCallbackAndWait(...)',
+      async () =>
+        (await it(() => testObject.getValueFromJSCallbackAndWait(() => 73)))
+          .didNotThrow()
+          .equals(73)
     ),
-    createTest('callAll(...)', async () =>
+    createTest('Multiple callbacks are all called: callAll(...)', async () =>
       (
         await it(async () => {
           return timeoutedPromise((complete) => {
@@ -871,6 +873,48 @@ export function getTests(
       )
         .didNotThrow()
         .equals(3)
+    ),
+    createTest(
+      'Callback can be called multiple times: callSumUpNTimes(...)',
+      async () =>
+        (await it(async () => await testObject.callSumUpNTimes(() => 7, 5)))
+          .didNotThrow()
+          .equals(7 * 5 /* = 35 */)
+    ),
+    createTest(
+      'Async callback can be awaited and returned on native side: callbackAsyncPromise(...)',
+      async () =>
+        (
+          await it(async () => {
+            return timeoutedPromise(async (complete) => {
+              const result = await testObject.callbackAsyncPromise(async () => {
+                return 13
+              })
+              complete(result)
+            })
+          })
+        )
+          .didNotThrow()
+          .equals(13)
+    ),
+    createTest(
+      'Async callback can be awaited and returned on native side: callbackAsyncPromiseBuffer(...)',
+      async () =>
+        (
+          await it(async () => {
+            return timeoutedPromise<ArrayBuffer>(async (complete) => {
+              const result = await testObject.callbackAsyncPromiseBuffer(
+                async () => {
+                  return await testObject.createArrayBufferAsync()
+                }
+              )
+              complete(result)
+            })
+          })
+        )
+          .didNotThrow()
+          .didReturn('object')
+          .toContain('byteLength')
     ),
 
     // Objects
