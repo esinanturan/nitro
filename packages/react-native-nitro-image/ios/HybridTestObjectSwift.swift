@@ -71,6 +71,33 @@ class HybridTestObjectSwift : HybridTestObjectSwiftKotlinSpec {
     }
   }
 
+  func callSumUpNTimes(callback: @escaping (() -> Promise<Double>), n: Double) throws -> Promise<Double> {
+    var result = 0.0
+    return Promise.async {
+      for _ in 1...Int(n) {
+        let current = try await callback().await()
+        result += current
+      }
+      return result
+    }
+  }
+
+  func callbackAsyncPromise(callback: @escaping (() -> Promise<Promise<Double>>)) throws -> Promise<Double> {
+    return Promise.async {
+      let promise = try await callback().await()
+      let result = try await promise.await()
+      return result
+    }
+  }
+
+  func callbackAsyncPromiseBuffer(callback: @escaping (() -> Promise<Promise<ArrayBufferHolder>>)) throws -> Promise<ArrayBufferHolder> {
+    return Promise.async {
+      let promise = try await callback().await()
+      let result = try await promise.await()
+      return result
+    }
+  }
+
 
   func bounceStrings(array: [String]) throws -> [String] {
     return array

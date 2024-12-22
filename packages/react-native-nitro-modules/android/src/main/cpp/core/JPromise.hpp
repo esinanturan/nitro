@@ -57,6 +57,16 @@ public:
   }
 
 public:
+  ~JPromise() override {
+    if (_result == nullptr && _error == nullptr) [[unlikely]] {
+      jni::ThreadScope::WithClassLoader([&]() {
+        std::runtime_error error("Timeouted: JPromise was destroyed!");
+        this->reject(jni::getJavaExceptionForCppException(std::make_exception_ptr(error)));
+      });
+    }
+  }
+
+public:
   void resolve(jni::alias_ref<jni::JObject> result) {
     std::unique_lock lock(_mutex);
     _result = jni::make_global(result);
@@ -103,7 +113,8 @@ private:
     } else {
       // Promise is not yet resolved, put the listener in our queue.
       auto sharedCallback = jni::make_global(callback);
-      _onResolvedListeners.emplace_back([=](const auto& result) { sharedCallback->onResolved(result); });
+      _onResolvedListeners.emplace_back(
+          [sharedCallback = std::move(sharedCallback)](const auto& result) { sharedCallback->onResolved(result); });
     }
   }
   void addOnRejectedListenerJava(jni::alias_ref<JOnRejectedCallback> callback) {
@@ -114,7 +125,8 @@ private:
     } else {
       // Promise is not yet rejected, put the listener in our queue.
       auto sharedCallback = jni::make_global(callback);
-      _onRejectedListeners.emplace_back([=](const auto& error) { sharedCallback->onRejected(error); });
+      _onRejectedListeners.emplace_back(
+          [sharedCallback = std::move(sharedCallback)](const auto& error) { sharedCallback->onRejected(error); });
     }
   }
 

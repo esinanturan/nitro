@@ -198,7 +198,7 @@ void HybridTestObjectCpp::throwError(const std::exception_ptr& error) {
   std::rethrow_exception(error);
 }
 
-std::string HybridTestObjectCpp::tryOptionalParams(double num, bool boo, const std::optional<std::string>& str) {
+std::string HybridTestObjectCpp::tryOptionalParams(double /* num */, bool /* boo */, const std::optional<std::string>& str) {
   if (str.has_value()) {
     return str.value();
   } else {
@@ -206,7 +206,7 @@ std::string HybridTestObjectCpp::tryOptionalParams(double num, bool boo, const s
   }
 }
 
-std::string HybridTestObjectCpp::tryMiddleParam(double num, std::optional<bool> boo, const std::string& str) {
+std::string HybridTestObjectCpp::tryMiddleParam(double /* num */, std::optional<bool> /* boo */, const std::string& str) {
   return str;
 }
 
@@ -273,6 +273,41 @@ void HybridTestObjectCpp::callCallback(const std::function<void()>& callback) {
 void HybridTestObjectCpp::callWithOptional(std::optional<double> value,
                                            const std::function<void(std::optional<double> /* maybe */)>& callback) {
   callback(value);
+}
+
+std::shared_ptr<Promise<double>> HybridTestObjectCpp::callSumUpNTimes(const std::function<std::shared_ptr<Promise<double>>()>& callback,
+                                                                      double n) {
+  return Promise<double>::async([=]() {
+    double result = 0;
+    for (size_t i = 0; i < n; i++) {
+      std::future<double> future = callback()->await();
+      double current = future.get();
+      result += current;
+    }
+    return result;
+  });
+}
+
+std::shared_ptr<Promise<double>>
+HybridTestObjectCpp::callbackAsyncPromise(const std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<double>>>>()>& callback) {
+  return Promise<double>::async([=]() {
+    std::future<std::shared_ptr<Promise<double>>> future = callback()->await();
+    std::shared_ptr<Promise<double>> promise = future.get();
+    std::future<double> innerFuture = promise->await();
+    double innerResult = innerFuture.get();
+    return innerResult;
+  });
+}
+
+std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>> HybridTestObjectCpp::callbackAsyncPromiseBuffer(
+    const std::function<std::shared_ptr<Promise<std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>>>>()>& callback) {
+  return Promise<std::shared_ptr<ArrayBuffer>>::async([=]() {
+    std::future<std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>>> future = callback()->await();
+    std::shared_ptr<Promise<std::shared_ptr<ArrayBuffer>>> promise = future.get();
+    std::future<std::shared_ptr<ArrayBuffer>> innerFuture = promise->await();
+    std::shared_ptr<ArrayBuffer> innerResult = innerFuture.get();
+    return innerResult;
+  });
 }
 
 std::shared_ptr<Promise<double>>
@@ -387,7 +422,7 @@ std::shared_ptr<HybridTestObjectCppSpec> HybridTestObjectCpp::newTestObject() {
   return std::make_shared<HybridTestObjectCpp>();
 }
 
-jsi::Value HybridTestObjectCpp::rawJsiFunc(jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* args, size_t count) {
+jsi::Value HybridTestObjectCpp::rawJsiFunc(jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* args, size_t count) {
   jsi::Array array(runtime, count);
   for (size_t i = 0; i < count; i++) {
     array.setValueAtIndex(runtime, i, jsi::Value(runtime, args[i]));
