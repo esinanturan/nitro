@@ -77,6 +77,7 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func getCar() throws -> Car
   func isCarElectric(car: Car) throws -> Bool
   func getDriver(car: Car) throws -> Person?
+  func bounceCar(car: Car) throws -> Car
   func jsStyleObjectAsParameters(params: JsStyleStruct) throws -> Void
   func bounceWrappedJsStyleStruct(value: WrappedJsStruct) throws -> WrappedJsStruct
   func bounceOptionalWrapper(wrapper: OptionalWrapper) throws -> OptionalWrapper
@@ -106,6 +107,13 @@ public protocol HybridTestObjectSwiftKotlinSpec_protocol: HybridObject {
   func getIsViewBlue(view: (any HybridTestViewSpec)) throws -> Bool
   func bounceExternalHybrid(externalObject: (any HybridSomeExternalObjectSpec)) throws -> (any HybridSomeExternalObjectSpec)
   func createInternalObject() throws -> (any HybridSomeExternalObjectSpec)
+}
+
+public extension HybridTestObjectSwiftKotlinSpec_protocol {
+  /// Default implementation of ``HybridObject.toString``
+  func toString() -> String {
+    return "[HybridObject TestObjectSwiftKotlin]"
+  }
 }
 
 /// See ``HybridTestObjectSwiftKotlinSpec``

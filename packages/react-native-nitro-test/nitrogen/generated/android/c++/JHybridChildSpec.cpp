@@ -25,6 +25,7 @@ namespace margelo::nitro::test { struct Person; }
 #include <optional>
 #include "JPerson.hpp"
 #include <vector>
+#include "JVariant_String_Double.hpp"
 
 namespace margelo::nitro::test {
 
@@ -46,6 +47,12 @@ namespace margelo::nitro::test {
   void JHybridChildSpec::dispose() noexcept {
     static const auto method = javaClassStatic()->getMethod<void()>("dispose");
     method(_javaPart);
+  }
+
+  std::string JHybridChildSpec::toString() {
+    static const auto method = javaClassStatic()->getMethod<jni::JString()>("toString");
+    auto javaString = method(_javaPart);
+    return javaString->toStdString();
   }
 
   // Properties

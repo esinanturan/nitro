@@ -133,6 +133,12 @@ namespace margelo::nitro::test {
     method(_javaPart);
   }
 
+  std::string JHybridTestObjectSwiftKotlinSpec::toString() {
+    static const auto method = javaClassStatic()->getMethod<jni::JString()>("toString");
+    auto javaString = method(_javaPart);
+    return javaString->toStdString();
+  }
+
   // Properties
   std::shared_ptr<HybridTestObjectSwiftKotlinSpec> JHybridTestObjectSwiftKotlinSpec::getThisObject() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridTestObjectSwiftKotlinSpec::javaobject>()>("getThisObject");
@@ -814,6 +820,11 @@ namespace margelo::nitro::test {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPerson>(jni::alias_ref<JCar> /* car */)>("getDriver");
     auto __result = method(_javaPart, JCar::fromCpp(car));
     return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  Car JHybridTestObjectSwiftKotlinSpec::bounceCar(const Car& car) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JCar>(jni::alias_ref<JCar> /* car */)>("bounceCar");
+    auto __result = method(_javaPart, JCar::fromCpp(car));
+    return __result->toCpp();
   }
   void JHybridTestObjectSwiftKotlinSpec::jsStyleObjectAsParameters(const JsStyleStruct& params) {
     static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JJsStyleStruct> /* params */)>("jsStyleObjectAsParameters");

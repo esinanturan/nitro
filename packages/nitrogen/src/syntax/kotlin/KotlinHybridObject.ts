@@ -94,6 +94,11 @@ abstract class ${name.HybridTSpec}: ${kotlinBase}() {
     super.updateNative(hybridData)
   }
 
+  // Default implementation of \`HybridObject.toString()\`
+  override fun toString(): String {
+    return "[HybridObject ${name.T}]"
+  }
+
   // Properties
   ${indent(properties, '  ')}
 
@@ -199,7 +204,9 @@ set(value) {
       `.trim()
       )
     }
-    const code = property.getCode('kotlin', { virtual: true })
+    const code = property.getCode('kotlin', {
+      virtual: true,
+    })
     return `
 ${code}
 
@@ -207,7 +214,10 @@ private ${keyword} ${property.name}_cxx: ${bridged.getTypeCode('kotlin')}
   ${indent(lines.join('\n'), '  ')}
     `.trim()
   } else {
-    const code = property.getCode('kotlin', { doNotStrip: true, virtual: true })
+    const code = property.getCode('kotlin', {
+      doNotStrip: true,
+      virtual: true,
+    })
     return code
   }
 }

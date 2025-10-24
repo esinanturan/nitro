@@ -40,6 +40,11 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
     super.updateNative(hybridData)
   }
 
+  // Default implementation of `HybridObject.toString()`
+  override fun toString(): String {
+    return "[HybridObject TestObjectSwiftKotlin]"
+  }
+
   // Properties
   @get:DoNotStrip
   @get:Keep
@@ -378,6 +383,10 @@ abstract class HybridTestObjectSwiftKotlinSpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun getDriver(car: Car): Person?
+  
+  @DoNotStrip
+  @Keep
+  abstract fun bounceCar(car: Car): Car
   
   @DoNotStrip
   @Keep

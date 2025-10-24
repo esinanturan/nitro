@@ -111,6 +111,9 @@ namespace margelo::nitro::test {
     void dispose() noexcept override {
       _swiftPart.dispose();
     }
+    std::string toString() override {
+      return _swiftPart.toString();
+    }
 
   public:
     // Properties
@@ -571,6 +574,14 @@ namespace margelo::nitro::test {
     }
     inline std::optional<Person> getDriver(const Car& car) override {
       auto __result = _swiftPart.getDriver(std::forward<decltype(car)>(car));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline Car bounceCar(const Car& car) override {
+      auto __result = _swiftPart.bounceCar(std::forward<decltype(car)>(car));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
